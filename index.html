@@ -7,7 +7,7 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- jscroot CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/jscroot@latest/dist/jscroot.min.js"></script>
+  <script src="https://unpkg.com/jscroot@latest/dist/jscroot.min.js"></script>
   <style>
     body {
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
@@ -97,10 +97,8 @@
           try {
             const res = typeof response === 'string' ? JSON.parse(response) : response;
             if (res.token) {
-              alert('Login berhasil! Token: ' + res.token);
-              // Simpan token ke localStorage/sessionStorage jika perlu
-              // localStorage.setItem('token', res.token);
-              // window.location.href = '/dashboard';
+              localStorage.setItem('token', res.token);
+              window.location.href = 'https://sakhaclothing.shop/';
             } else if (res.error) {
               errorMsg.textContent = res.error;
               errorMsg.classList.remove('hidden');
