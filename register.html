@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Sakha Clothing</title>
+  <title>Register - Sakha Clothing</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- jscroot CDN -->
@@ -38,12 +38,13 @@
   <div class="login-card w-full max-w-md p-10 bg-white/80 relative">
     <div class="flex flex-col items-center mb-8">
       <svg class="w-14 h-14 text-blue-500 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 7.5v-.75A2.25 2.25 0 0 0 14.25 4.5h-4.5A2.25 2.25 0 0 0 7.5 6.75v.75m9 0v.75m0-.75a2.25 2.25 0 0 1 2.25 2.25v7.5A2.25 2.25 0 0 1 16.5 19.5h-9A2.25 2.25 0 0 1 5.25 17.25v-7.5A2.25 2.25 0 0 1 7.5 7.5m9 0h-9"/></svg>
-      <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">Welcome Back</h2>
-      <p class="text-gray-500 text-sm mt-1">Sign in to your account</p>
+      <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">Register</h2>
+      <p class="text-gray-500 text-sm mt-1">Create your account</p>
     </div>
-    <form id="loginForm" class="space-y-6">
+    <form id="registerForm" class="space-y-6">
       <div class="relative">
         <span class="input-icon">
+          <!-- Ikon user -->
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 17.232A6 6 0 1 0 6 21h12a6 6 0 0 0-2.768-3.768z"/><circle cx="12" cy="9" r="4"/></svg>
         </span>
         <label for="username" class="block text-xs font-semibold text-gray-600 mb-1">Username or Email</label>
@@ -51,6 +52,7 @@
       </div>
       <div class="relative">
         <span class="input-icon">
+          <!-- Ikon lock -->
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </span>
         <label for="password" class="block text-xs font-semibold text-gray-600 mb-1">Password</label>
@@ -67,58 +69,92 @@
           </svg>
         </button>
       </div>
-      <div id="errorMsg" class="text-red-500 text-sm hidden">Username dan password wajib diisi.</div>
-      <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">Login</button>
+      <div class="relative">
+        <span class="input-icon">
+          <!-- Ikon lock -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </span>
+        <label for="confirmPassword" class="block text-xs font-semibold text-gray-600 mb-1">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" class="input-field mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition shadow-sm bg-white/90 pr-12" placeholder="Confirm your password" required>
+        <button type="button" id="toggleConfirmPassword" tabindex="-1" class="absolute right-3 top-1/2 bottom-1/2 transform -translate-y-1/2 text-blue-400 hover:text-blue-600 focus:outline-none" title="Show or hide confirm password">
+          <svg id="eyeOpenConfirm" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <svg id="eyeClosedConfirm" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12z" />
+            <circle cx="12" cy="12" r="3" />
+            <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        </button>
+      </div>
+      <div id="errorMsg" class="text-red-500 text-sm hidden">Semua field wajib diisi dan password harus sama.</div>
+      <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 transition">Register</button>
     </form>
     <div class="mt-6 text-center">
-      <a href="#" class="text-blue-500 hover:underline text-sm">Forgot your password?</a>
-      <span class="block mt-2 text-gray-500 text-sm">Belum punya akun? <a href="register.html" class="text-blue-600 hover:underline font-semibold">Register</a></span>
+      <span class="block text-gray-500 text-sm">Sudah punya akun? <a href="index.html" class="text-blue-600 hover:underline font-semibold">Login</a></span>
     </div>
   </div>
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
       const errorMsg = document.getElementById('errorMsg');
-      if (!username || !password) {
+      if (!username || !password || !confirmPassword || password !== confirmPassword) {
         errorMsg.classList.remove('hidden');
         return;
       } else {
         errorMsg.classList.add('hidden');
       }
-      // Contoh penggunaan jscroot untuk AJAX login (endpoint dummy)
+      // Contoh penggunaan jscroot untuk AJAX register (endpoint dummy)
       jscroot.request({
-        url: 'https://example.com/api/login',
+        url: 'https://example.com/api/register',
         method: 'POST',
         data: { username, password },
         success: function(response) {
-          alert('Login berhasil!');
-          // Redirect atau aksi lain
+          alert('Register berhasil! Silakan login.');
+          window.location.href = 'index.html';
         },
         error: function(err) {
-          errorMsg.textContent = 'Login gagal. Cek username/password.';
+          errorMsg.textContent = 'Register gagal. Username mungkin sudah digunakan.';
           errorMsg.classList.remove('hidden');
         }
       });
     });
-
     // Show/hide password logic
     const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
     const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const eyeOpen = document.getElementById('eyeOpen');
     const eyeClosed = document.getElementById('eyeClosed');
+    const eyeOpenConfirm = document.getElementById('eyeOpenConfirm');
+    const eyeClosedConfirm = document.getElementById('eyeClosedConfirm');
     let passwordVisible = false;
-    togglePassword.addEventListener('click', function() {
-      passwordVisible = !passwordVisible;
-      passwordInput.type = passwordVisible ? 'text' : 'password';
-      if (passwordVisible) {
+    function setPasswordVisibility(visible) {
+      passwordInput.type = visible ? 'text' : 'password';
+      confirmPasswordInput.type = visible ? 'text' : 'password';
+      if (visible) {
         eyeOpen.classList.add('hidden');
         eyeClosed.classList.remove('hidden');
+        eyeOpenConfirm.classList.add('hidden');
+        eyeClosedConfirm.classList.remove('hidden');
       } else {
         eyeOpen.classList.remove('hidden');
         eyeClosed.classList.add('hidden');
+        eyeOpenConfirm.classList.remove('hidden');
+        eyeClosedConfirm.classList.add('hidden');
       }
+    }
+    togglePassword.addEventListener('click', function() {
+      passwordVisible = !passwordVisible;
+      setPasswordVisibility(passwordVisible);
+    });
+    toggleConfirmPassword.addEventListener('click', function() {
+      passwordVisible = !passwordVisible;
+      setPasswordVisibility(passwordVisible);
     });
   </script>
 </body>
