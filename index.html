@@ -6,8 +6,6 @@
   <title>Login - Sakha Clothing</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- jscroot CDN -->
-  <script src="https://unpkg.com/jscroot@latest/dist/jscroot.min.js"></script>
   <style>
     body {
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
@@ -87,41 +85,27 @@
       } else {
         errorMsg.classList.add('hidden');
       }
-      // Contoh penggunaan jscroot untuk AJAX login (endpoint dummy)
-      jscroot.request({
-        url: '/auth/login',
+      // AJAX login menggunakan fetch API
+      fetch('/auth/login', {
         method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ username, password }),
-        success: function(response) {
-          try {
-            const res = typeof response === 'string' ? JSON.parse(response) : response;
-            if (res.token) {
-              localStorage.setItem('token', res.token);
-              window.location.href = 'https://sakhaclothing.shop/';
-            } else if (res.error) {
-              errorMsg.textContent = res.error;
-              errorMsg.classList.remove('hidden');
-            } else {
-              errorMsg.textContent = 'Login gagal. Cek username/password.';
-              errorMsg.classList.remove('hidden');
-            }
-          } catch (e) {
-            errorMsg.textContent = 'Terjadi kesalahan pada response server.';
-            errorMsg.classList.remove('hidden');
-          }
+        headers: {
+          'Content-Type': 'application/json'
         },
-        error: function(err) {
-          let msg = 'Login gagal. Cek username/password.';
-          if (err && err.responseText) {
-            try {
-              const res = JSON.parse(err.responseText);
-              if (res.error) msg = res.error;
-            } catch {}
-          }
-          errorMsg.textContent = msg;
+        body: JSON.stringify({ username, password })
+      })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('token', data.token);
+          window.location.href = 'https://sakhaclothing.shop/';
+        } else {
+          errorMsg.textContent = data.error || 'Login gagal. Cek username/password.';
           errorMsg.classList.remove('hidden');
         }
+      })
+      .catch(() => {
+        errorMsg.textContent = 'Terjadi kesalahan pada koneksi/server.';
+        errorMsg.classList.remove('hidden');
       });
     });
 
@@ -144,4 +128,4 @@
     });
   </script>
 </body>
-</html> 
+</html>
