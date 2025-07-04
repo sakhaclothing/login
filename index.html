@@ -89,15 +89,39 @@
       }
       // Contoh penggunaan jscroot untuk AJAX login (endpoint dummy)
       jscroot.request({
-        url: 'https://example.com/api/login',
+        url: '/auth/login',
         method: 'POST',
-        data: { username, password },
+        contentType: 'application/json',
+        data: JSON.stringify({ username, password }),
         success: function(response) {
-          alert('Login berhasil!');
-          // Redirect atau aksi lain
+          try {
+            const res = typeof response === 'string' ? JSON.parse(response) : response;
+            if (res.token) {
+              alert('Login berhasil! Token: ' + res.token);
+              // Simpan token ke localStorage/sessionStorage jika perlu
+              // localStorage.setItem('token', res.token);
+              // window.location.href = '/dashboard';
+            } else if (res.error) {
+              errorMsg.textContent = res.error;
+              errorMsg.classList.remove('hidden');
+            } else {
+              errorMsg.textContent = 'Login gagal. Cek username/password.';
+              errorMsg.classList.remove('hidden');
+            }
+          } catch (e) {
+            errorMsg.textContent = 'Terjadi kesalahan pada response server.';
+            errorMsg.classList.remove('hidden');
+          }
         },
         error: function(err) {
-          errorMsg.textContent = 'Login gagal. Cek username/password.';
+          let msg = 'Login gagal. Cek username/password.';
+          if (err && err.responseText) {
+            try {
+              const res = JSON.parse(err.responseText);
+              if (res.error) msg = res.error;
+            } catch {}
+          }
+          errorMsg.textContent = msg;
           errorMsg.classList.remove('hidden');
         }
       });
