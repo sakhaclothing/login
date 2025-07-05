@@ -6,6 +6,8 @@
   <title>Login - Sakha Clothing</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     :root {
       --accent-color: rgb(0, 0, 0);
@@ -72,7 +74,6 @@
           </svg>
         </button>
       </div>
-      <div id="errorMsg" class="text-red-500 text-sm hidden">Username dan password wajib diisi.</div>
       <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-black to-gray-800 text-white font-semibold rounded-lg shadow-md hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-black transition">Login</button>
     </form>
     <div class="mt-6 text-center">
@@ -85,13 +86,27 @@
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
-      const errorMsg = document.getElementById('errorMsg');
+      
       if (!username || !password) {
-        errorMsg.classList.remove('hidden');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Oops...',
+          text: 'Username dan password wajib diisi.',
+          confirmButtonColor: '#000000',
+          confirmButtonText: 'OK'
+        });
         return;
-      } else {
-        errorMsg.classList.add('hidden');
       }
+      
+      // Show loading state
+      Swal.fire({
+        title: 'Logging in...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
       // AJAX login menggunakan fetch API
       fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/login', {
         method: 'POST',
@@ -103,16 +118,38 @@
       .then(async (res) => {
         const data = await res.json();
         if (res.ok && data.token) {
-          localStorage.setItem('token', data.token);
-          window.location.href = 'https://sakhaclothing.shop/';
+          // Success alert
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Berhasil!',
+            text: 'Anda akan dialihkan ke halaman utama.',
+            timer: 2000,
+            showConfirmButton: false,
+            timerProgressBar: true
+          }).then(() => {
+            localStorage.setItem('token', data.token);
+            window.location.href = 'https://sakhaclothing.shop/';
+          });
         } else {
-          errorMsg.textContent = data.error || 'Login gagal. Cek username/password.';
-          errorMsg.classList.remove('hidden');
+          // Error alert
+          Swal.fire({
+            icon: 'error',
+            title: 'Login Gagal',
+            text: data.error || 'Username atau password salah. Silakan coba lagi.',
+            confirmButtonColor: '#000000',
+            confirmButtonText: 'OK'
+          });
         }
       })
       .catch(() => {
-        errorMsg.textContent = 'Terjadi kesalahan pada koneksi/server.';
-        errorMsg.classList.remove('hidden');
+        // Network error alert
+        Swal.fire({
+          icon: 'error',
+          title: 'Koneksi Error',
+          text: 'Terjadi kesalahan pada koneksi/server. Silakan coba lagi.',
+          confirmButtonColor: '#000000',
+          confirmButtonText: 'OK'
+        });
       });
     });
 
