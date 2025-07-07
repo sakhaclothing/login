@@ -102,8 +102,26 @@ document.getElementById('forgotPasswordLink').addEventListener('click', function
         preConfirm: (email) => {
             if (!email) {
                 Swal.showValidationMessage('Email wajib diisi');
+                return false;
             }
-            return email;
+            // Cek email ke backend
+            return fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/check-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.valid) {
+                    Swal.showValidationMessage(data.error || 'Email tidak terdaftar');
+                    return false;
+                }
+                return email;
+            })
+            .catch(() => {
+                Swal.showValidationMessage('Gagal cek email, coba lagi.');
+                return false;
+            });
         }
     }).then((result) => {
         if (result.isConfirmed && result.value) {
@@ -134,4 +152,4 @@ document.getElementById('forgotPasswordLink').addEventListener('click', function
                 });
         }
     });
-}); 
+}); ]
