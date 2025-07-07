@@ -152,4 +152,4 @@ document.getElementById('forgotPasswordLink').addEventListener('click', function
                 });
         }
     });
-}); ]
+});
