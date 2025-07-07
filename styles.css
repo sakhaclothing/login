@@ -36,4 +36,12 @@ body {
 .input-field {
   padding-left: 2.5rem;
   padding-right: 2.5rem;
+}
+
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 90%;
+  margin: 0 auto;
+  justify-content: center;
 } 
