@@ -86,4 +86,52 @@ togglePassword.addEventListener('click', function () {
         eyeOpen.classList.remove('hidden');
         eyeClosed.classList.add('hidden');
     }
+});
+
+document.getElementById('forgotPasswordLink').addEventListener('click', function (e) {
+    e.preventDefault();
+    Swal.fire({
+        title: 'Lupa Password',
+        text: 'Masukkan email yang terdaftar untuk reset password.',
+        input: 'email',
+        inputPlaceholder: 'Email',
+        showCancelButton: true,
+        confirmButtonText: 'Kirim',
+        confirmButtonColor: '#000000',
+        cancelButtonText: 'Batal',
+        preConfirm: (email) => {
+            if (!email) {
+                Swal.showValidationMessage('Email wajib diisi');
+            }
+            return email;
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            // Kirim request ke endpoint forgot-password
+            fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: result.value })
+            })
+                .then(res => res.text())
+                .then(msg => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cek Email Anda',
+                        text: 'Jika email terdaftar, link reset password telah dikirim.',
+                        confirmButtonColor: '#000000'
+                    });
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan, silakan coba lagi.',
+                        confirmButtonColor: '#000000'
+                    });
+                });
+        }
+    });
 }); 
