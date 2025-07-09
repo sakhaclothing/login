@@ -73,7 +73,7 @@
       fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: response.credential })
+        body: JSON.stringify({ token: response.credential }) // <-- sekarang sesuai backend
       })
       .then(res => res.json())
       .then(data => {
