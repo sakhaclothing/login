@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="min-h-screen flex items-center justify-center">
   <div class="login-card w-full max-w-md p-10 bg-white/90 relative">
@@ -47,6 +48,9 @@
       <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-black to-gray-800 text-white font-semibold rounded-lg shadow-md hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-black transition">Login</button>
     </form>
     <div class="mt-6 text-center">
+      <!-- Google Sign-In Button -->
+      <div id="google-signin-placeholder"></div>
+      <!-- End Google Sign-In Button -->
       <div class="forgot-password-row">
         <a href="#" id="forgotPasswordLink" class="text-black hover:underline text-sm" style="margin-bottom: 8px;">Lupa password?</a>
       </div>
@@ -57,5 +61,41 @@
   </div>
   <!-- Custom JavaScript -->
   <script src="script.js"></script>
+  <script>
+    function handleCredentialResponse(response) {
+      fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/google-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: response.credential })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/dashboard/index.html';
+        } else {
+          alert('Login gagal: ' + (data.error || 'Unknown error'));
+        }
+      });
+    }
+
+    // Fetch client_id dari backend dan render tombol Google Sign-In
+    fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/config/google-client-id')
+      .then(res => res.json())
+      .then(data => {
+        const clientId = data.client_id;
+        const gIdOnload = document.createElement('div');
+        gIdOnload.id = 'g_id_onload';
+        gIdOnload.setAttribute('data-client_id', clientId);
+        gIdOnload.setAttribute('data-callback', 'handleCredentialResponse');
+        gIdOnload.setAttribute('data-auto_prompt', 'false');
+        document.getElementById('google-signin-placeholder').appendChild(gIdOnload);
+
+        const gIdSignin = document.createElement('div');
+        gIdSignin.className = 'g_id_signin';
+        gIdSignin.setAttribute('data-type', 'standard');
+        document.getElementById('google-signin-placeholder').appendChild(gIdSignin);
+      });
+  </script>
 </body>
 </html>
