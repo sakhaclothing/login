@@ -2,12 +2,23 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
+    const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]')?.value;
 
     if (!username || !password) {
         Swal.fire({
             icon: 'warning',
             title: 'Oops...',
             text: 'Username/email dan password wajib diisi.',
+            confirmButtonColor: '#000000',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    if (!turnstileToken) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Gagal',
+            text: 'CAPTCHA wajib diisi.',
             confirmButtonColor: '#000000',
             confirmButtonText: 'OK'
         });
@@ -29,7 +40,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, "cf-turnstile-response": turnstileToken })
     })
         .then(async (res) => {
             const data = await res.json();
@@ -110,18 +121,18 @@ document.getElementById('forgotPasswordLink').addEventListener('click', function
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.valid) {
-                    Swal.showValidationMessage(data.error || 'Email tidak terdaftar');
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.valid) {
+                        Swal.showValidationMessage(data.error || 'Email tidak terdaftar');
+                        return false;
+                    }
+                    return email;
+                })
+                .catch(() => {
+                    Swal.showValidationMessage('Gagal cek email, coba lagi.');
                     return false;
-                }
-                return email;
-            })
-            .catch(() => {
-                Swal.showValidationMessage('Gagal cek email, coba lagi.');
-                return false;
-            });
+                });
         }
     }).then((result) => {
         if (result.isConfirmed && result.value) {
