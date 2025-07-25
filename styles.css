@@ -44,4 +44,27 @@ body {
   width: 90%;
   margin: 0 auto;
   justify-content: center;
-} 
+}
+
+/* Terms checkbox styling */
+input[type="checkbox"] {
+  accent-color: var(--accent-color);
+}
+
+input[type="checkbox"]:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Link styling in terms */
+.terms-links a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.terms-links a:hover {
+  text-decoration: underline;
+  color: var(--dark-color);
+}

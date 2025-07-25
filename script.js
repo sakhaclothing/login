@@ -1,83 +1,54 @@
+import { postJSON } from "https://cdn.jsdelivr.net/gh/jscroot/lib@0.2.8/api.min.js";
+import { setCookieWithExpireHour, getCookie } from "https://cdn.jsdelivr.net/gh/jscroot/lib@0.2.8/cookie.min.js";
+import { validateEmail, validateRequired } from "https://cdn.jsdelivr.net/gh/jscroot/lib@0.2.8/validate.min.js";
+import { showLoading, hideLoading } from "https://cdn.jsdelivr.net/gh/jscroot/lib@0.2.8/loading.min.js";
+
 document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
     const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]')?.value;
+    const termsAccepted = document.getElementById('termsCheckbox').checked;
 
-    if (!username || !password) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Oops...',
-            text: 'Username/email dan password wajib diisi.',
-            confirmButtonColor: '#000000',
-            confirmButtonText: 'OK'
-        });
+    // Validation using jscroot validate
+    if (!validateRequired(username) || !validateRequired(password)) {
+        alert('Username/email dan password wajib diisi.');
         return;
     }
+    
     if (!turnstileToken) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Login Gagal',
-            text: 'CAPTCHA wajib diisi.',
-            confirmButtonColor: '#000000',
-            confirmButtonText: 'OK'
-        });
+        alert('CAPTCHA wajib diisi.');
         return;
     }
 
-    // Show loading state
-    Swal.fire({
-        title: 'Logging in...',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
-    });
+    // Terms validation
+    if (!termsAccepted) {
+        alert('Anda harus menyetujui Syarat dan Ketentuan untuk melanjutkan.');
+        return;
+    }
 
-    // AJAX login menggunakan fetch API
-    fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password, "cf-turnstile-response": turnstileToken })
-    })
-        .then(async (res) => {
-            const data = await res.json();
-            if (res.ok && data.token) {
-                // Success alert
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Login Berhasil!',
-                    text: 'Anda akan dialihkan ke halaman utama.',
-                    timer: 2000,
-                    showConfirmButton: false,
-                    timerProgressBar: true
-                }).then(() => {
-                    localStorage.setItem('token', data.token);
-                    window.location.href = 'https://sakhaclothing.shop/';
-                });
+    showLoading('Logging in...');
+
+    const loginData = { 
+        username, 
+        password, 
+        "cf-turnstile-response": turnstileToken 
+    };
+
+    postJSON(
+        'https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/login',
+        loginData,
+        (response) => {
+            hideLoading();
+            if (response.status === 200 && response.data.token) {
+                setCookieWithExpireHour('token', response.data.token, 24);
+                alert('Login berhasil!');
+                window.location.href = 'https://sakhaclothing.shop/';
             } else {
-                // Error alert
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Login Gagal',
-                    text: data.error || 'Username atau password salah. Silakan coba lagi.',
-                    confirmButtonColor: '#000000',
-                    confirmButtonText: 'OK'
-                });
+                alert(response.data.error || 'Login gagal. Silakan coba lagi.');
             }
-        })
-        .catch(() => {
-            // Network error alert
-            Swal.fire({
-                icon: 'error',
-                title: 'Koneksi Error',
-                text: 'Terjadi kesalahan pada koneksi/server. Silakan coba lagi.',
-                confirmButtonColor: '#000000',
-                confirmButtonText: 'OK'
-            });
-        });
+        }
+    );
 });
 
 // Show/hide password logic
