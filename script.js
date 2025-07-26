@@ -5,50 +5,92 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]')?.value;
     const termsAccepted = document.getElementById('termsCheckbox').checked;
 
-    // Basic validation
     if (!username || !password) {
-        alert('Username/email dan password wajib diisi.');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Username/email dan password wajib diisi.',
+            confirmButtonColor: '#000000',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+    
+    if (!termsAccepted) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Persetujuan Diperlukan',
+            text: 'Anda harus menyetujui Syarat dan Ketentuan untuk melanjutkan.',
+            confirmButtonColor: '#000000',
+            confirmButtonText: 'OK'
+        });
         return;
     }
     
     if (!turnstileToken) {
-        alert('CAPTCHA wajib diisi.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Gagal',
+            text: 'CAPTCHA wajib diisi.',
+            confirmButtonColor: '#000000',
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
-    // Terms validation
-    if (!termsAccepted) {
-        alert('Anda harus menyetujui Syarat dan Ketentuan untuk melanjutkan.');
-        return;
-    }
+    // Show loading state
+    Swal.fire({
+        title: 'Logging in...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
-    const loginData = { 
-        username, 
-        password, 
-        "cf-turnstile-response": turnstileToken 
-    };
-
+    // AJAX login menggunakan fetch API
     fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(loginData)
+        body: JSON.stringify({ username, password, "cf-turnstile-response": turnstileToken })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.token) {
-            document.cookie = `token=${data.token}; expires=${new Date(Date.now() + 24*60*60*1000).toUTCString()}; path=/`;
-            alert('Login berhasil!');
-            window.location.href = 'https://sakhaclothing.shop/';
-        } else {
-            alert(data.error || 'Login gagal. Silakan coba lagi.');
-        }
-    })
-    .catch(err => {
-        console.error('Login error:', err);
-        alert('Terjadi kesalahan. Silakan coba lagi.');
-    });
+        .then(async (res) => {
+            const data = await res.json();
+            if (res.ok && data.token) {
+                // Success alert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Berhasil!',
+                    text: 'Anda akan dialihkan ke halaman utama.',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    timerProgressBar: true
+                }).then(() => {
+                    localStorage.setItem('token', data.token);
+                    window.location.href = 'https://sakhaclothing.shop/';
+                });
+            } else {
+                // Error alert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Gagal',
+                    text: data.error || 'Username atau password salah. Silakan coba lagi.',
+                    confirmButtonColor: '#000000',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(() => {
+            // Network error alert
+            Swal.fire({
+                icon: 'error',
+                title: 'Koneksi Error',
+                text: 'Terjadi kesalahan pada koneksi/server. Silakan coba lagi.',
+                confirmButtonColor: '#000000',
+                confirmButtonText: 'OK'
+            });
+        });
 });
 
 // Show/hide password logic
@@ -86,23 +128,28 @@ document.getElementById('forgotPasswordLink').addEventListener('click', function
                 Swal.showValidationMessage('Email wajib diisi');
                 return false;
             }
+            // Cek email ke backend
             return fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/check-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Email tidak terdaftar');
-                }
-                return email;
-            })
-            .catch(error => {
-                Swal.showValidationMessage('Email tidak terdaftar dalam sistem');
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.valid) {
+                        Swal.showValidationMessage(data.error || 'Email tidak terdaftar');
+                        return false;
+                    }
+                    return email;
+                })
+                .catch(() => {
+                    Swal.showValidationMessage('Gagal cek email, coba lagi.');
+                    return false;
+                });
         }
     }).then((result) => {
         if (result.isConfirmed && result.value) {
+            // Kirim request ke endpoint forgot-password
             fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/forgot-password', {
                 method: 'POST',
                 headers: {
@@ -110,23 +157,23 @@ document.getElementById('forgotPasswordLink').addEventListener('click', function
                 },
                 body: JSON.stringify({ email: result.value })
             })
-            .then(res => res.text())
-            .then(msg => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Cek Email Anda',
-                    text: 'Jika email terdaftar, link reset password telah dikirim.',
-                    confirmButtonColor: '#000000'
+                .then(res => res.text())
+                .then(msg => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cek Email Anda',
+                        text: 'Jika email terdaftar, link reset password telah dikirim.',
+                        confirmButtonColor: '#000000'
+                    });
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Terjadi kesalahan, silakan coba lagi.',
+                        confirmButtonColor: '#000000'
+                    });
                 });
-            })
-            .catch(() => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: 'Terjadi kesalahan, silakan coba lagi.',
-                    confirmButtonColor: '#000000'
-                });
-            });
         }
     });
 });
