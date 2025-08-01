@@ -131,8 +131,9 @@ async function handleUrlParameters() {
     await waitForJscroot();
 
     // Get URL parameters
-    const redirectUrl = window.jscroot.getUrlParam('redirect');
-    const message = window.jscroot.getUrlParam('message');
+    const queryString = window.jscroot.getQueryString();
+    const redirectUrl = queryString.redirect;
+    const message = queryString.message;
 
     if (redirectUrl) {
         console.log('Redirect URL:', redirectUrl);
