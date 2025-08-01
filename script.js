@@ -63,16 +63,26 @@ async function loginWithJscroot(username, password, turnstileToken) {
 
     try {
         // Show loading
-        window.jscroot.showLoading('Logging in...');
+        const loadingElement = document.createElement('div');
+        loadingElement.innerHTML = window.jscroot.loading;
+        loadingElement.style.position = 'fixed';
+        loadingElement.style.top = '50%';
+        loadingElement.style.left = '50%';
+        loadingElement.style.transform = 'translate(-50%, -50%)';
+        loadingElement.style.zIndex = '9999';
+        document.body.appendChild(loadingElement);
 
         // Use jscroot API functions
-        const response = await window.jscroot.post(
-            'https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/login',
-            { username, password, "cf-turnstile-response": turnstileToken }
-        );
+        const response = await new Promise((resolve) => {
+            window.jscroot.postJSON(
+                'https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/login',
+                { username, password, "cf-turnstile-response": turnstileToken },
+                resolve
+            );
+        });
 
         // Hide loading
-        window.jscroot.hideLoading();
+        document.body.removeChild(loadingElement);
 
         if (response.status === 200 && response.data.token) {
             // Store token in localStorage
@@ -83,9 +93,7 @@ async function loginWithJscroot(username, password, turnstileToken) {
 
             // Get browser info for analytics
             const browserInfo = {
-                browser: window.jscroot.getBrowser(),
-                os: window.jscroot.getOS(),
-                device: window.jscroot.getDevice()
+                isMobile: window.jscroot.isMobile()
             };
 
             console.log('Browser Info:', browserInfo);
@@ -105,7 +113,9 @@ async function loginWithJscroot(username, password, turnstileToken) {
             throw new Error(response.data.error || 'Login failed');
         }
     } catch (error) {
-        window.jscroot.hideLoading();
+        if (document.body.contains(loadingElement)) {
+            document.body.removeChild(loadingElement);
+        }
         Swal.fire({
             icon: 'error',
             title: 'Login Gagal',
@@ -162,9 +172,7 @@ async function initializeJscrootFeatures() {
     await handleUrlParameters();
 
     // Log browser information
-    console.log('Browser:', window.jscroot.getBrowser());
-    console.log('OS:', window.jscroot.getOS());
-    console.log('Device:', window.jscroot.getDevice());
+    console.log('Is Mobile:', window.jscroot.isMobile());
 }
 
 // Original login form handler with jscroot integration
