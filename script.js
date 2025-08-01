@@ -16,8 +16,8 @@ function waitForJscroot() {
 async function validateLoginForm() {
     await waitForJscroot();
 
-    const username = window.jscroot.getElement('username').value.trim();
-    const password = window.jscroot.getElement('password').value.trim();
+    const username = window.jscroot.getValue('username').trim();
+    const password = window.jscroot.getValue('password').trim();
 
     // Validate required fields
     if (!window.jscroot.validateRequired(username)) {
@@ -181,8 +181,8 @@ async function setupLoginForm() {
                 return;
             }
 
-            const username = window.jscroot.getElement('username').value.trim();
-            const password = window.jscroot.getElement('password').value.trim();
+            const username = window.jscroot.getValue('username').trim();
+            const password = window.jscroot.getValue('password').trim();
             const turnstileToken = document.querySelector('input[name="cf-turnstile-response"]')?.value;
             const termsAccepted = window.jscroot.getElement('termsCheckbox').checked;
 
