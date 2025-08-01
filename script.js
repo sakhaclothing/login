@@ -20,7 +20,7 @@ async function validateLoginForm() {
     const password = window.jscroot.getValue('password').trim();
 
     // Validate required fields
-    if (!window.jscroot.validateRequired(username)) {
+    if (!username || username.trim() === '') {
         Swal.fire({
             icon: 'warning',
             title: 'Oops...',
@@ -31,7 +31,7 @@ async function validateLoginForm() {
         return false;
     }
 
-    if (!window.jscroot.validateRequired(password)) {
+    if (!password || password.trim() === '') {
         Swal.fire({
             icon: 'warning',
             title: 'Oops...',
@@ -43,15 +43,18 @@ async function validateLoginForm() {
     }
 
     // Validate email if username is email
-    if (username.includes('@') && !window.jscroot.validateEmail(username)) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Email Tidak Valid',
-            text: 'Format email tidak valid.',
-            confirmButtonColor: '#000000',
-            confirmButtonText: 'OK'
-        });
-        return false;
+    if (username.includes('@')) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(username)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Email Tidak Valid',
+                text: 'Format email tidak valid.',
+                confirmButtonColor: '#000000',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
     }
 
     return true;
