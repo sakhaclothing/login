@@ -265,28 +265,66 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Google Sign-In functions
 function handleCredentialResponse(response) {
+    console.log('[DEBUG] Google credential response received:', response);
     fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/auth/google-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: response.credential })
     })
-        .then(res => res.json())
+        .then(res => {
+            console.log('[DEBUG] Google login response status:', res.status);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
         .then(data => {
+            console.log('[DEBUG] Google login response data:', data);
             if (data.token) {
                 localStorage.setItem('token', data.token);
-                window.location.href = '../sakhaclothing.github.io/index.html';
+                console.log('[DEBUG] Token stored, redirecting...');
+                window.location.href = 'https://sakhaclothing.shop/';
             } else {
-                alert('Login gagal: ' + (data.error || 'Unknown error'));
+                console.error('[DEBUG] No token in response:', data);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Gagal',
+                    text: data.error || 'Unknown error',
+                    confirmButtonColor: '#000000',
+                    confirmButtonText: 'OK'
+                });
             }
+        })
+        .catch(error => {
+            console.error('[DEBUG] Google login error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal',
+                text: 'Terjadi kesalahan saat login dengan Google. Silakan coba lagi.',
+                confirmButtonColor: '#000000',
+                confirmButtonText: 'OK'
+            });
         });
 }
 
 function onGoogleLibraryLoad() {
+    console.log('[DEBUG] Google library loaded, fetching client ID...');
     fetch('https://asia-southeast2-ornate-course-437014-u9.cloudfunctions.net/sakha/config/google-client-id')
-        .then(res => res.json())
+        .then(res => {
+            console.log('[DEBUG] Client ID response status:', res.status);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
         .then(data => {
+            console.log('[DEBUG] Client ID data:', data);
             const clientId = data.client_id;
+            if (!clientId) {
+                throw new Error('Client ID not found in response');
+            }
             if (window.google && google.accounts && google.accounts.id) {
+                console.log('[DEBUG] Initializing Google Sign-In with client ID:', clientId);
                 google.accounts.id.initialize({
                     client_id: clientId,
                     callback: handleCredentialResponse
@@ -295,7 +333,20 @@ function onGoogleLibraryLoad() {
                     document.getElementById('google-signin-placeholder'),
                     { theme: 'outline', size: 'large', text: 'signin_with', width: 250 }
                 );
+                console.log('[DEBUG] Google Sign-In button rendered');
+            } else {
+                console.error('[DEBUG] Google accounts library not available');
             }
+        })
+        .catch(error => {
+            console.error('[DEBUG] Error loading Google client ID:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Google Sign-In Error',
+                text: 'Gagal memuat konfigurasi Google Sign-In. Silakan coba lagi.',
+                confirmButtonColor: '#000000',
+                confirmButtonText: 'OK'
+            });
         });
 }
 
